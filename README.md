@@ -4,7 +4,7 @@ paginate: true
 footer: "https://github.com/tc39/proposal-temporal"
 -->
 
-# Temporal 🕓
+# 🕓 Temporal
 
 ## Update 2020-06
 
@@ -12,11 +12,11 @@ footer: "https://github.com/tc39/proposal-temporal"
 - What's new?
 - Roadmap
 - Feedback
-- Open questions
+- Things the plenary should be aware of
 
 ---
 
-# Recap: Where to find... 🔎
+# 🔎 Recap: Where to find...
 
 - ...the **spec draft**? [tc39.es/proposal-temporal](https://tc39.es/proposal-temporal/)
 - ...the MDN-style **API docs**? [tc39.es/proposal-temporal/docs](https://tc39.es/proposal-temporal/docs/)
@@ -27,16 +27,16 @@ footer: "https://github.com/tc39/proposal-temporal"
 
 ---
 
-# What's new since last time? 🆕
+# 🆕 What's new since last time?
 
 - [Cookbook](https://tc39.es/proposal-temporal/docs/cookbook.html) complete
 - Calendar
 - Custom time zones
-- Parse
+- TypeScript types
 
 ---
 
-## Calendar
+## 📆 Calendar
 
 Needed e.g. when doing calculations in another calendar system
 
@@ -49,7 +49,7 @@ date.withCalendar('...').plus({ months: 1 })
 
 ---
 
-## Custom time zones
+## 🌐 Custom time zones
 
 Needed e.g. when recreating particular versions of tzdata in secure environments
 
@@ -64,64 +64,51 @@ class MyTimeZone extends Temporal.TimeZone {
 
 ---
 
-## Parse
+<!-- _footer: Thanks to Justin Grant, a new contributor -->
 
-Needed when dealing with partially valid data
+## ⌨ TypeScript types
 
-```javascript
-parsed = Temporal.parse('2020-05-27T99:99')
-⇒ {
-    absolute: null,
-    date: '2020-05-27',
-    dateTime: '2020-05-27T99:99',
-    time: '99:99',
-    ...
-  }
-Temporal.Date.from(parsed.date).withTime(Temporal.Time.from('00:00'))
-```
+Useful for people trying out the polyfill
+
+![](typescript.png)
 
 ---
 
-# Roadmap 🛣
+# 🛣 Roadmap
 
-This week:
-- Release and publicize polyfill
+- **This week,** release and publicize polyfill
+- **In a few months,** request Stage 3 advancement
 
 ---
 
-# Roadmap 🛣
+# 🛣 Roadmap
 
-Before Stage 3:
-- Gather feedback from and have conversations with polyfill users
-- Incorporate decisions & feedback
+Between this week and Stage 3:
+- [List of issues to address](https://github.com/tc39/proposal-temporal/milestone/1)
+- Inform decisions with feedback from polyfill users
 - Release an updated polyfill with API improvements based on feedback
 - W3C TAG review
 - Finalize specification
 
 ---
 
-# Roadmap 🛣
-
-Request Stage 3 advancement in a few months
-
----
-
-# Polyfill release 🔜
+# 🔜 Polyfill release
 
 - "Does it block releasing a version of the polyfill?"
   - Yes? — Address it now
-  - No? — Make a provisional decision for now, and revisit before Stage 3
+  - No? — Make a provisional decision for now, and revisit before Stage 3 based on feedback
 
 ---
 
-# Feedback 📢
+# 📢 Feedback
 
 - Feedback on the API from the JS developer community
 - What we have gotten so far has proved valuable
+- Community members participating in champions group calls!
 
 ---
 
-# Open questions for plenary ❓
+# ❓ Things the plenary should be aware of
 
 - Binary comparison operators
 - Default calendar
@@ -135,12 +122,7 @@ How to correctly compare two dates:
 ```javascript
 date1.equals(date2)  // ⇒ true or false
 Temporal.Date.compare(date1, date2)  // ⇒ -1, 0, or 1
-dates.sort(Temporal.Date.compare)
 ```
-
----
-
-## Binary comparison operators
 
 How people will probably try to compare two dates:
 
@@ -153,16 +135,65 @@ date1 >= date2
 
 ## Binary comparison operators
 
-Open question:
+- `===`, `!==`, `==`, `!=` will just not work that way
+- Returning a value from `valueOf()` could salvage `<`, `<=`, `>`, `>=`
+  - But would also allow meaningless comparisons with numbers and across Temporal types
 
-**Do we make `.valueOf()` throw so that this is impossible?**
+---
 
-Champions group answers:
+## Binary comparison operators
 
-**TBD**
+Question:
+- Do we make `valueOf()` **throw**, or **return a BigInt?**
+
+Temporal Champions current answer:
+- `valueOf()` **throws**
+- Revisit before Stage 3 based on feedback
+
+[Link to discussion thread](https://github.com/tc39/proposal-temporal/issues/517)
+
+---
+
+## Binary comparison operators
+
+💬 **Feedback?**
 
 ---
 
 ## Default calendar
 
-??
+- Calendar API is meant to be unobtrusive in cases where it's not needed
+- Most code will use the ISO 8601 calendar
+  - Even in locales where a different calendar is used, can convert with `toLocaleString()`
+
+---
+
+## Default calendar
+
+Potential i18n correctness bugs arise with default ISO 8601 calendar when doing calendar-sensitive calculations in locales with a different default calendar system:
+```javascript
+const today = Temporal.now.date();
+console.log("Today is:", today.toLocaleString());
+const nextMonth = today.plus({ months: 1 });
+console.log("Next month is: ", nextMonth.toLocaleString());
+```
+> Today is: Ramadan 24, 1441 AH
+> Next month is: Shawwal ~~24~~**25**, 1441 AH
+
+---
+
+## Default calendar
+
+Question:
+- Do we make **ISO 8601 default** or require specifying a calendar explicitly?
+  - (many different options with different pros and cons, [see discussion thread](https://github.com/tc39/proposal-temporal/issues/292))
+
+Temporal Champions current answer:
+- **Default to ISO 8601 calendar**
+- Revisit before Stage 3 based on feedback
+
+---
+
+## Default calendar
+
+💬 **Feedback?**
