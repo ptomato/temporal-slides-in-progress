@@ -6,13 +6,16 @@ footer: "https://github.com/tc39/proposal-temporal"
 
 # 🕓 Temporal
 
-## Update 2020-06
+## Update for 2020-06
 
 - Recap
 - What's new?
 - Roadmap
-- Feedback
 - Things the plenary should be aware of
+
+<!--
+  Introduce self
+-->
 
 ---
 
@@ -25,6 +28,10 @@ footer: "https://github.com/tc39/proposal-temporal"
 - ...a quick **JS environment with Temporal**?
   - _open your browser console on the API docs page_
 
+<!--
+  Jason presented all these things last time, but to refresh your memory here's an overview with quick links to where everything lives
+-->
+
 ---
 
 # 🆕 What's new since last time?
@@ -34,24 +41,33 @@ footer: "https://github.com/tc39/proposal-temporal"
 - Custom time zones
 - TypeScript types
 
+<!--
+  The cookbook is full of examples now, including a time zone meeting planner written in just a few lines of code!
+-->
+
 ---
 
 ## 📆 Calendar
 
-Needed e.g. when doing calculations in another calendar system
-
-Works transparently with the existing API
+- Needed e.g. when doing calculations in another calendar system
+- Works transparently with the existing API
+- Can implement your own calendar system for specialized applications
 
 ```javascript
-date.withCalendar('...').plus({ months: 1 })
-  // adds the number of days in that month according to the calendar
+date.withCalendar('hebrew').plus({ months: 1 })
+  // adds the number of days in that month of the Hebrew calendar
 ```
+
+<!--
+  We have support for non-Gregorian calendars now.
+-->
 
 ---
 
 ## 🌐 Custom time zones
 
-Needed e.g. when recreating particular versions of tzdata in secure environments
+- Can implement your own time zone for specialized applications
+- Needed e.g. when recreating particular releases of tzdata in secure environments
 
 ```javascript
 class MyTimeZone extends Temporal.TimeZone {
@@ -64,13 +80,15 @@ class MyTimeZone extends Temporal.TimeZone {
 
 ---
 
-<!-- _footer: Thanks to Justin Grant, a new contributor -->
-
 ## ⌨ TypeScript types
 
 Useful for people trying out the polyfill
 
 ![](typescript.png)
+
+<!--
+  This is one of the things that we have thanks to Justin Grant, a JS developer who recently joined the champions calls.
+-->
 
 ---
 
@@ -104,7 +122,11 @@ Between this week and Stage 3:
 
 - Feedback on the API from the JS developer community
 - What we have gotten so far has proved valuable
-- Community members participating in champions group calls!
+- Growing [list of feedback to consider](https://github.com/tc39/proposal-temporal/labels/feedback) before Stage 3
+
+<!--
+  A lot of the helpful feedback has come from two involved JS developers, and we'd like to attract more people to help with this.
+-->
 
 ---
 
@@ -131,6 +153,10 @@ date1 === date2
 date1 >= date2
 ```
 
+<!--
+  Problem statement
+-->
+
 ---
 
 ## Binary comparison operators
@@ -138,6 +164,11 @@ date1 >= date2
 - `===`, `!==`, `==`, `!=` will just not work that way
 - Returning a value from `valueOf()` could salvage `<`, `<=`, `>`, `>=`
   - But would also allow meaningless comparisons with numbers and across Temporal types
+- `valueOf()` throwing would remove potentially meaningless comparisons
+
+<!--
+  Possible solution
+-->
 
 ---
 
@@ -156,7 +187,7 @@ Temporal Champions current answer:
 
 ## Binary comparison operators
 
-💬 **Feedback?**
+💬 **Comments?**
 
 ---
 
@@ -164,7 +195,11 @@ Temporal Champions current answer:
 
 - Calendar API is meant to be unobtrusive in cases where it's not needed
 - Most code will use the ISO 8601 calendar
-  - Even in locales where a different calendar is used, can convert with `toLocaleString()`
+  - Even in locales where a different calendar is used, can convert at UI layer with `toLocaleString()`
+
+<!--
+  For most applications, we expect it will be enough to use the ISO calendar internally, and convert to the user's calendar at the moment you present the data to the user.
+-->
 
 ---
 
@@ -178,7 +213,11 @@ const nextMonth = today.plus({ months: 1 });
 console.log("Next month is: ", nextMonth.toLocaleString());
 ```
 > Today is: Ramadan 24, 1441 AH
-> Next month is: Shawwal ~~24~~**25**, 1441 AH
+> Next month is: Shawwal ~~24~~ **25**, 1441 AH
+
+<!--
+  Problems occur when you actually need to do _calculations_ in the user's calendar space.
+-->
 
 ---
 
@@ -196,4 +235,11 @@ Temporal Champions current answer:
 
 ## Default calendar
 
-💬 **Feedback?**
+💬 **Comments?**
+
+---
+
+# Thank you
+
+- ❓ Questions?
+- 💬 Comments?
