@@ -9,7 +9,6 @@ footer: "https://github.com/tc39/proposal-temporal"
 ## Update for 2020-07
 
 - Recap
-- What's new?
 - Roadmap
 - Feedback
 
@@ -114,16 +113,8 @@ Between now and Stage 3:
 
 ---
 
-## 🐒 Monkeypatching points for security
+## 👆 Fingerprinting vectors
 
-- `Temporal.now` — gives access to the current date, time, and time zone
+- `Temporal.now` — gives access to the current date, time, time zone, and clock precision
 - `Temporal.TimeZone.from` — gives access to what time zones are known to the implementation
 - `Temporal.Calendar.from` — gives access to what calendars are known to the implementation
-
----
-
-## 🌴 "Exotic object hazard"
-
-- Brought up in June TC39 plenary in relation to Intl.Segmenter
-- We are still not sure how this affects Temporal
-- Will attend incubator call to discuss this
