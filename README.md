@@ -168,18 +168,18 @@ Temporal.PlainDate.from('1999-12-31[u-ca=custom-calendar]', { calendarResolver }
 ## 🔢 Intl.NumberFormat
 
 - Names of a small, fixed set of rounding modes in Temporal
-  - `roundingMode: 'nearest'`, `'ceil'`, `'floor'`, `'trunc'`
+  - `roundingMode: 'halfExpand'`, `'ceil'`, `'floor'`, `'trunc'`
 - Intended to align with Intl.NumberFormat V3 proposal
   - [proposal-intl-numberformat-v3#7](https://github.com/tc39/proposal-intl-numberformat-v3/issues/7)
-- Intl.NumberFormat adds more rounding modes than just these four
-  - We might come back and ask for consensus to add them to Temporal
+- Intl.NumberFormat V3 adds more rounding modes than just these four
+  - The NumberFormat proposal might seek consensus for adding more modes to Temporal
 
 ---
 
 ## 📅 Month Code Format
 
 - String format for `monthCode` property
-- e.g. `Temporal.now.plainDate('chinese').monthCode`
+- e.g. `Temporal.now.plainDate('chinese').monthCode === "M03"`
 - Shared between Temporal and ICU4X
 - No subsequent changes expected
 
