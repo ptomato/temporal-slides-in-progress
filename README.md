@@ -80,7 +80,8 @@ TC39 March 2021
 - Previously, you could monkeypatch `Temporal.Calendar.from()` and `Temporal.TimeZone.from()` to include custom time zones and calendars
 - Affects not only `from()` but all deserialization entry points
 - Background:
-  - [tc39/proposal-temporal#294](https://github.com/tc39/proposal-temporal/issues/294)
+  - [proposal-temporal#294](https://github.com/tc39/proposal-temporal/issues/294)
+  - [proposal-temporal#1293](https://github.com/tc39/proposal-temporal/issues/1293)
 
 ---
 
@@ -110,7 +111,7 @@ Temporal.PlainDate.from('1999-12-31[u-ca=custom-calendar]');
 
 ## Removal of observable `from()` calls
 
-- Add a resolver or "local registry" parameter
+- Add a resolver parameter for custom calendar and time zone IDs
 - Plan to develop an API and submit a needs-consensus PR for this in April
 
 ---
@@ -119,12 +120,12 @@ Temporal.PlainDate.from('1999-12-31[u-ca=custom-calendar]');
 
 (just an example, not a proposed API)
 ```js
-const resolver = {
-  'custom-calendar'() {
+function calendarResolver(id) {
+  if (id === 'custom-calendar')
     return new MyCustomCalendar();
-  },
-};
-Temporal.PlainDate.from('1999-12-31[u-ca=custom-calendar]', { resolver });
+  return Temporal.Calendar.from(id);
+}
+Temporal.PlainDate.from('1999-12-31[u-ca=custom-calendar]', { calendarResolver });
 ```
 
 ---
@@ -147,7 +148,7 @@ Temporal.PlainDate.from('1999-12-31[u-ca=custom-calendar]', { resolver });
 
 ## 🪢 ISO String Extensions
 
-- In January we talked about standardizing extensions to the ISO string format
+- In January we talked about standardizing extensions to the ISO 8601 string format
 - `2020-08-05T20:06:13+09:00[Asia/Tokyo][u-ca=japanese]`
 - Bracketed time zone annotation is already a _de facto_ standard
   - But published nowhere
@@ -160,19 +161,18 @@ Temporal.PlainDate.from('1999-12-31[u-ca=custom-calendar]', { resolver });
 - [Draft update to RFC 3339](https://ryzokuken.dev/draft-ryzokuken-datetime-extended/documents/rfc-3339.html)
 - At time of writing, due to be presented at IETF 110
 - Intended to align with whatever gets standardized
-  - Even if there are subsequent changes
-- Issue [proposal-temporal#1409](https://github.com/tc39/proposal-temporal/issues/1409)
+  - No subsequent changes expected, though
 
 ---
 
 ## 🔢 Intl.NumberFormat
 
-- Names of rounding modes in Temporal
+- Names of a small, fixed set of rounding modes in Temporal
   - `roundingMode: 'nearest'`, `'ceil'`, `'floor'`, `'trunc'`
 - Intended to align with Intl.NumberFormat V3 proposal
-  - Even if there are subsequent changes
   - [proposal-intl-numberformat-v3#7](https://github.com/tc39/proposal-intl-numberformat-v3/issues/7)
-- Issue [proposal-temporal#1308](https://github.com/tc39/proposal-temporal/issues/1038)
+- Intl.NumberFormat adds more rounding modes than just these four
+  - We might come back and ask for consensus to add them to Temporal
 
 ---
 
@@ -181,7 +181,14 @@ Temporal.PlainDate.from('1999-12-31[u-ca=custom-calendar]', { resolver });
 - String format for `monthCode` property
 - e.g. `Temporal.now.plainDate('chinese').monthCode`
 - Shared between Temporal and ICU4X
-- No further changes expected, but _may_ want to standardize in future
+- No subsequent changes expected
+
+---
+
+## Expectation around parallel standardizations
+
+- We have no reason to expect more changes to the ISO string format, the rounding modes, or the month code format
+- Should there be a motivated change in any of these, we expect to come back to committee and ask for the associated change in Temporal
 
 ---
 
@@ -203,9 +210,11 @@ Temporal.PlainDate.from('1999-12-31[u-ca=custom-calendar]', { resolver });
 
 <style scoped>li { font-size: 75%; }</style>
 
-## 🐜 We will also fix bugs that come up
+## 🐜 We will also fix bugs
 
+- Bugs may come up due to implementer feedback
 - [#1415](https://github.com/tc39/proposal-temporal/issues/1415) just opened!
+  - Algorithm edge case
 
 ---
 
@@ -233,7 +242,7 @@ Temporal.PlainDate.from('1999-12-31[u-ca=custom-calendar]', { resolver });
 ## Anticipated changes
 
 - Readability and other editorial fixes
-- Issues raised in delegate review
+- Editorial issues raised in delegate review
 
 ---
 
@@ -284,3 +293,13 @@ Temporal.PlainDate.from('1999-12-31[u-ca=custom-calendar]', { resolver });
 - Disadvantages:
   - Endorses **monkeypatching** builtin objects
   - **Early running code** can't defend against late running code
+
+---
+
+## Month codes
+
+- Some calendars have leap months inserted at different points in the year
+- Temporal needs to have two ways to refer to months:
+  - in numerical order (`month`, e.g. `3`)
+  - stable across years (`monthCode`, e.g. `"M03"`)
+- Background: [proposal-temporal#1203](https://github.com/tc39/proposal-temporal/issues/1203)
