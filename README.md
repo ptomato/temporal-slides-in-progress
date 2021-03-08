@@ -77,56 +77,25 @@ TC39 March 2021
 
 ## Removal of observable `from()` calls
 
-- Previously, you could monkeypatch `Temporal.Calendar.from()` and `Temporal.TimeZone.from()` to include custom time zones and calendars
-- Affects not only `from()` but all deserialization entry points
+- Removed the single monkeypatching points that affect deserialization of time zone and calendar IDs
 - Background:
   - [proposal-temporal#294](https://github.com/tc39/proposal-temporal/issues/294)
   - [proposal-temporal#1293](https://github.com/tc39/proposal-temporal/issues/1293)
 
----
-
-## Removal of observable `from()` calls
-
-Previously:
-```js
-const origFrom = Temporal.Calendar.from;
-Temporal.Calendar.from = function (calendarLike) {
-  if (calendarLike === 'custom-calendar')
-    return new MyCustomCalendar();
-  return origFrom(calendarLike);
-}
-Temporal.PlainDate.from('1999-12-31[u-ca=custom-calendar]');
-// => Party like it's 1999
-```
 
 ---
 
 ## Removal of observable `from()` calls
 
-- Resolution: remove this single monkeypatching point
-- To install a custom time zone or calendar globally, user code must replace Temporal entirely
-- `from()` still exists but is not observably called internally by Temporal
+- Impact: some use cases now require patching all of Temporal
+  - Globally adding a new time zone or calendar
+  - Replacing builtin time zone data with an updated version
+  - Patching a bug in builtin time zone or calendar data
+  - Limiting code to only using the ISO calendar or UTC time zone
+  - Ensuring cross-browser identical results
+- There are other ways to achieve similar results
+  - We may in future ask for consensus to add one
 
----
-
-## Removal of observable `from()` calls
-
-- Add a resolver parameter for custom calendar and time zone IDs
-- Plan to develop an API and submit a needs-consensus PR for this in April
-
----
-
-## Removal of observable `from()` calls
-
-(just an example, not a proposed API)
-```js
-function calendarResolver(id) {
-  if (id === 'custom-calendar')
-    return new MyCustomCalendar();
-  return Temporal.Calendar.from(id);
-}
-Temporal.PlainDate.from('1999-12-31[u-ca=custom-calendar]', { calendarResolver });
-```
 
 ---
 
@@ -169,10 +138,10 @@ Temporal.PlainDate.from('1999-12-31[u-ca=custom-calendar]', { calendarResolver }
 
 - Names of a small, fixed set of rounding modes in Temporal
   - `roundingMode: 'halfExpand'`, `'ceil'`, `'floor'`, `'trunc'`
-- Intended to align with Intl.NumberFormat V3 proposal
+- Aligns with Intl.NumberFormat V3 proposal
   - [proposal-intl-numberformat-v3#7](https://github.com/tc39/proposal-intl-numberformat-v3/issues/7)
 - Intl.NumberFormat V3 adds more rounding modes than just these four
-  - The NumberFormat proposal might seek consensus for adding more modes to Temporal
+  - The NumberFormat proposal might seek consensus for adding more modes to Temporal in the future
 
 ---
 
@@ -190,6 +159,17 @@ Temporal.PlainDate.from('1999-12-31[u-ca=custom-calendar]', { calendarResolver }
 - We have no reason to expect more changes to the ISO string format, the rounding modes, or the month code format
 - Should there be a motivated change in any of these, we expect to come back to committee and ask for the associated change in Temporal
 
+
+---
+
+<style scoped>li { font-size: 75%; }</style>
+
+## 🗒️ Normative changes proposed by delegates during review
+
+- [#1426](https://github.com/tc39/proposal-temporal/issues/1426) Freeze objects passed in to user code twice?
+- [#1427](https://github.com/tc39/proposal-temporal/issues/1427) Use Iterables instead of Lists
+- [#1429](https://github.com/tc39/proposal-temporal/issues/1429) Lingering TODOs in Intl
+
 ---
 
 <style scoped>li { font-size: 75%; }</style>
@@ -205,6 +185,7 @@ Temporal.PlainDate.from('1999-12-31[u-ca=custom-calendar]', { calendarResolver }
 - [#1413](https://github.com/tc39/proposal-temporal/issues/1413) Check correct usage of 𝔽 and ∞
 - [#1416](https://github.com/tc39/proposal-temporal/issues/1416) Fix names of abstract operations
 - [#1418](https://github.com/tc39/proposal-temporal/issues/1418) Tweak the split between 262 and 402 in the spec text
+- [#1424](https://github.com/tc39/proposal-temporal/issues/1424) Editorial improvements
 
 ---
 
@@ -212,9 +193,9 @@ Temporal.PlainDate.from('1999-12-31[u-ca=custom-calendar]', { calendarResolver }
 
 ## 🐜 We will also fix bugs
 
-- Bugs may come up due to implementer feedback
-- [#1415](https://github.com/tc39/proposal-temporal/issues/1415) just opened!
-  - Algorithm edge case
+- Bugs may come up due to implementer and real-world feedback
+- [#1415](https://github.com/tc39/proposal-temporal/issues/1415) Algorithm edge case
+
 
 ---
 
@@ -224,25 +205,14 @@ Temporal.PlainDate.from('1999-12-31[u-ca=custom-calendar]', { calendarResolver }
 
 ---
 
-<!-- _class: invert lead -->
-
-# Stage 3?
-
----
-
-## Criteria
+## Stage 3 criteria
 
 - ✅ The solution is complete, no more work possible without impl. experience, significant usage, external feedback
 - ✅ Complete spec text
+  - (conditional, on resolution of the previously listed pending issues)
 - ❓ Designated reviewers have signed off on the spec text
 - ❓ ECMAScript editors have signed off on the spec text
 
----
-
-## Anticipated changes
-
-- Readability and other editorial fixes
-- Editorial issues raised in delegate review
 
 ---
 
@@ -272,6 +242,22 @@ Temporal.PlainDate.from('1999-12-31[u-ca=custom-calendar]', { calendarResolver }
 
 ## Removal of observable `from()` calls
 
+Previously:
+```js
+const origFrom = Temporal.Calendar.from;
+Temporal.Calendar.from = function (calendarLike) {
+  if (calendarLike === 'custom-calendar')
+    return new MyCustomCalendar();
+  return origFrom(calendarLike);
+}
+Temporal.PlainDate.from('1999-12-31[u-ca=custom-calendar]');
+// => Party like it's 1999
+```
+
+---
+
+## Removal of observable `from()` calls
+
 - Advantages:
   - React to **short-notice geopolitical changes** in time zones and calendars, before environments are able to ship updates
   - **Limit damage** by users making `MyCustomCalendar` available globally
@@ -293,6 +279,27 @@ Temporal.PlainDate.from('1999-12-31[u-ca=custom-calendar]', { calendarResolver }
 - Disadvantages:
   - Endorses **monkeypatching** builtin objects
   - **Early running code** can't defend against late running code
+
+---
+
+## Removal of observable `from()` calls
+
+- Add a 'resolver' parameter for custom calendar and time zone IDs
+- Plan to develop an API and submit a needs-consensus PR for this in the future
+
+---
+
+## Removal of observable `from()` calls
+
+(just an example, not a proposed API)
+```js
+function calendarResolver(id) {
+  if (id === 'custom-calendar')
+    return new MyCustomCalendar();
+  return Temporal.Calendar.from(id);
+}
+Temporal.PlainDate.from('1999-12-31[u-ca=custom-calendar]', { calendarResolver });
+```
 
 ---
 
