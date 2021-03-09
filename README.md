@@ -29,7 +29,7 @@ TC39 March 2021
 
 ---
 
-## ⏳ Why 2 hours?
+## ⏳ Why 1½ hours?
 
 - Editors recommended to reserve a generous amount of time in case delegates wanted to get more into the weeds during this plenary
 - Hopefully we will not have to use the whole time box
@@ -94,7 +94,7 @@ TC39 March 2021
   - Limiting code to only using the ISO calendar or UTC time zone
   - Ensuring cross-browser identical results
 - There are other ways to achieve similar results
-  - We may in future ask for consensus to add one
+  - If backwards-compatible, we may for consensus to add one in future
 
 
 ---
@@ -127,8 +127,8 @@ TC39 March 2021
 
 ## 🪢 ISO String Extensions
 
-- [Draft update to RFC 3339](https://ryzokuken.dev/draft-ryzokuken-datetime-extended/documents/rfc-3339.html)
-- At time of writing, due to be presented at IETF 110
+- [Internet Draft, "Date and Time on the Internet"](https://ryzokuken.dev/draft-ryzokuken-datetime-extended/documents/rfc-3339.html)
+- Presented at IETF 110, working group chartered
 - Intended to align with whatever gets standardized
   - No subsequent changes expected, though
 
@@ -149,12 +149,13 @@ TC39 March 2021
 
 - String format for `monthCode` property
 - e.g. `Temporal.now.plainDate('chinese').monthCode === "M03"`
+  - `"M05L"` for leap months, etc.
 - Shared between Temporal and ICU4X
 - No subsequent changes expected
 
 ---
 
-## Expectation around parallel standardizations
+## 🛣️ Expectation around parallel standardizations
 
 - We have no reason to expect more changes to the ISO string format, the rounding modes, or the month code format
 - Should there be a motivated change in any of these, we expect to come back to committee and ask for the associated change in Temporal
@@ -179,17 +180,23 @@ TC39 March 2021
 - ...that we believe are okay to finish or iterate on during Stage 3
 - [#519](https://github.com/tc39/proposal-temporal/issues/519)/[#541](https://github.com/tc39/proposal-temporal/issues/541) Wording ensuring correspondence between Intl and Temporal for time zones and calendars
 - [#1244](https://github.com/tc39/proposal-temporal/issues/1244)/[#1249](https://github.com/tc39/proposal-temporal/issues/1249) "Rebase" on ECMA-402 2021 edition
-- [#1388](https://github.com/tc39/proposal-temporal/issues/1388) Define property access order before impl.-defined operations
 - [#1410](https://github.com/tc39/proposal-temporal/issues/1410) Remove redundant intrinsics definitions
 - [#1411](https://github.com/tc39/proposal-temporal/issues/1411) Editorial improvements
 - [#1413](https://github.com/tc39/proposal-temporal/issues/1413) Check correct usage of 𝔽 and ∞
-- [#1416](https://github.com/tc39/proposal-temporal/issues/1416) Fix names of abstract operations
 - [#1418](https://github.com/tc39/proposal-temporal/issues/1418) Tweak the split between 262 and 402 in the spec text
 - [#1424](https://github.com/tc39/proposal-temporal/issues/1424) Editorial improvements
+- [#1425](https://github.com/tc39/proposal-temporal/issues/1424) Editorial improvements
 
 ---
 
-<style scoped>li { font-size: 75%; }</style>
+## 🎛️ Implementer feedback
+
+- We are asking for Stage 3 because we believe implementer and real-world feedback is necessary to proceed
+- Based on feedback from implementers, we may ask for consensus to change details
+  - e.g. to improve optimizability
+  - No change to the surface API unless something is _really_ off
+
+---
 
 ## 🐜 We will also fix bugs
 
@@ -259,11 +266,11 @@ Temporal.PlainDate.from('1999-12-31[u-ca=custom-calendar]');
 ## Removal of observable `from()` calls
 
 - Advantages:
-  - React to **short-notice geopolitical changes** in time zones and calendars, before environments are able to ship updates
-  - **Limit damage** by users making `MyCustomCalendar` available globally
+  - 👍 React to **short-notice geopolitical changes** in time zones and calendars, before environments are able to ship updates
+  - 👍 **Limit damage** by users making `MyCustomCalendar` available globally
 - Disadvantages:
-  - Endorses **monkeypatching** builtin objects
-  - **Early running code** can't defend against late running code
+  - 👎 Endorses **monkeypatching** builtin objects
+  - 👎 **Early running code** can't defend against late running code
 
 ---
 
@@ -274,11 +281,11 @@ Temporal.PlainDate.from('1999-12-31[u-ca=custom-calendar]');
 ## Removal of observable `from()` calls
 
 - Advantages:
-  - React to **short-notice geopolitical changes** in time zones and calendars, before environments are able to ship updates
-  - **Limit damage** by users making `MyCustomCalendar` available globally
+  - 👍 React to **short-notice geopolitical changes** in time zones and calendars, before environments are able to ship updates
+  - 👍 **Limit damage** by users making `MyCustomCalendar` available globally
 - Disadvantages:
-  - Endorses **monkeypatching** builtin objects
-  - **Early running code** can't defend against late running code
+  - 👎 Endorses **monkeypatching** builtin objects
+  - 👎 **Early running code** can't defend against late running code
 
 ---
 
@@ -299,6 +306,44 @@ function calendarResolver(id) {
   return Temporal.Calendar.from(id);
 }
 Temporal.PlainDate.from('1999-12-31[u-ca=custom-calendar]', { calendarResolver });
+```
+
+---
+
+## 💿 Calendar and TimeZone Records
+
+- Should a calendar or a time zone Get all its methods at the entry point?
+- Store them in a Calendar or TimeZone Record, analogous to PromiseCapability Record
+- Unlike PromiseCapability Record, this has implications for user code
+- Background: [proposal-temporal#1294](https://github.com/tc39/proposal-temporal/issues/1294)
+
+---
+
+## 💿 Calendar and TimeZone Records
+
+- I've investigated this
+- Has some advantages, but also disadvantages
+  - 👍 Spec text more concise
+  - 👍 Fewer observable Gets in some situations
+  - 👎 More observable Gets in other situations
+  - 👎 Odd behaviour around mutated prototypes
+- Champions have not discussed it yet
+- I personally don't think it's an improvement
+
+---
+
+## 💿 Calendar and TimeZone Records
+
+Should these `❔` be 12 or 13 and should any of them be different?
+
+```js
+const p = Temporal.now.plainDateTimeISO();
+Temporal.Calendar.prototype.monthsInYear = () => 13;
+
+p.monthsInYear  // => ❔
+p.calendar.monthsInYear(p)  // => ❔
+p.toPlainDate().monthsInYear // => ❔
+p.toPlainYearMonth().monthsInYear  // => ❔
 ```
 
 ---
