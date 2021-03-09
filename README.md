@@ -193,8 +193,7 @@ TC39 March 2021
 
 - We are asking for Stage 3 because we believe implementer and real-world feedback is necessary to proceed
 - Based on feedback from implementers, we may ask for consensus to change details
-  - e.g. to improve optimizability
-  - No change to the surface API unless something is _really_ off
+  - e.g. to improve optimizability of calendar/time zone protocol
 
 ---
 
