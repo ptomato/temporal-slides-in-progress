@@ -94,7 +94,7 @@ TC39 March 2021
   - Limiting code to only using the ISO calendar or UTC time zone
   - Ensuring cross-browser identical results
 - There are other ways to achieve similar results
-  - If backwards-compatible, we may for consensus to add one in future
+  - If backwards-compatible, we may ask for consensus to add one in future
 
 
 ---
@@ -180,7 +180,6 @@ TC39 March 2021
 - ...that we believe are okay to finish or iterate on during Stage 3
 - [#519](https://github.com/tc39/proposal-temporal/issues/519)/[#541](https://github.com/tc39/proposal-temporal/issues/541) Wording ensuring correspondence between Intl and Temporal for time zones and calendars
 - [#1244](https://github.com/tc39/proposal-temporal/issues/1244)/[#1249](https://github.com/tc39/proposal-temporal/issues/1249) "Rebase" on ECMA-402 2021 edition
-- [#1410](https://github.com/tc39/proposal-temporal/issues/1410) Remove redundant intrinsics definitions
 - [#1411](https://github.com/tc39/proposal-temporal/issues/1411) Editorial improvements
 - [#1413](https://github.com/tc39/proposal-temporal/issues/1413) Check correct usage of 𝔽 and ∞
 - [#1418](https://github.com/tc39/proposal-temporal/issues/1418) Tweak the split between 262 and 402 in the spec text
@@ -208,6 +207,72 @@ TC39 March 2021
 <!-- _class: invert lead -->
 
 # 🗣 Discussions
+
+---
+
+## Hallway discussion
+
+- A subgroup discussed some of the remaining queue items yesterday
+- We have proposals to present to the plenary
+- Ask for Stage 3 conditional on the proposal being changed in these ways
+- I hope I'm summarizing correctly; if not, please jump in
+
+---
+
+## Subclassing (1/2)
+
+- Remove support for `Symbol.species` from all Temporal classes
+- In instance methods that construct an instance, always construct an instance of the builtin
+- In static methods that construct an instance, do not use `this` as the constructor
+
+---
+
+## Subclassing (2/2)
+
+```js
+class MyPlainDateTime extends Temporal.PlainDateTime {}
+const mpdt = new MyPlainDateTime(2021, 3, 9, 'iso8601');
+mpdt.add({ days: 1 })
+  // ↪ Temporal.PlainDateTime instance
+MyPlainDateTime.from('2021-03-10')
+  // ↪ Temporal.PlainDateTime instance
+```
+
+---
+
+## Comparison (1/2)
+
+- Now that `Array.prototype.sort()` is stable, 
+- `Temporal.(type).compare()` does not take the calendar or time zone into account
+- `ZonedDateTime.compare()` works like `Instant.compare()`
+- `PlainDate`, `PlainDateTime`, and `PlainYearMonth` compare the ISO dates
+- No change to `equals()` method
+
+---
+
+## Comparison (2/2)
+
+```js
+const g = Temporal.PlainDate.from({ year: 2021, month: 3, day: 10, calendar: 'gregory' });
+  // ↪ 2021-03-10[u-ca=gregory]
+const h = Temporal.PlainDate.from({ year: 5781, month: 6, day: 26, calendar: 'hebrew' });
+  // ↪ 2021-03-10[u-ca=hebrew]
+Temporal.PlainDate.compare(g, h)
+  // previously: -1
+  // proposed: 0
+```
+
+---
+
+## Mutability due to calendars and time zones
+
+- Queue item from Kevin
+
+---
+
+## Conceptual consistency of time zones
+
+- Queue item from Jordan
 
 ---
 
